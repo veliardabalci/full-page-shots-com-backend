@@ -15,6 +15,7 @@ func TakeScreenshot(c *fiber.Ctx) error {
 	type request struct {
 		URL string `json:"url"`
 	}
+	fmt.Println("geldi ")
 
 	var req request
 	if err := c.BodyParser(&req); err != nil {
