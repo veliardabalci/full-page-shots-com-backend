@@ -4,10 +4,12 @@ import (
 	"backend/internal/handlers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func SetupRouter() *fiber.App {
 	app := fiber.New()
+	app.Use(logger.New())
 	// CORS ayarları
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:3000, http://anotherdomain.com", // İzin verilen originler
