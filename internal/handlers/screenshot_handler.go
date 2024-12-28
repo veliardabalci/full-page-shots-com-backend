@@ -33,7 +33,7 @@ func TakeScreenshot(c *fiber.Ctx) error {
 	filePath, err := services.CaptureScreenshot(parsedURL.String())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to capture screenshot",
+			"error": err,
 		})
 	}
 
