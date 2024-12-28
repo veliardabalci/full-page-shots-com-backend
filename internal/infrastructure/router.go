@@ -12,10 +12,10 @@ func SetupRouter() *fiber.App {
 	app.Use(logger.New())
 	// CORS ayarları
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000, http://anotherdomain.com", // İzin verilen originler
-		AllowMethods:     "GET,POST,PUT,DELETE",                             // İzin verilen HTTP yöntemleri
-		AllowHeaders:     "Origin, Content-Type, Accept",                    // İzin verilen headerlar
-		AllowCredentials: true,                                              // Credential paylaşımına izin
+		AllowOrigins:     "*",                            // İzin verilen originler
+		AllowMethods:     "GET,POST,PUT,DELETE",          // İzin verilen HTTP yöntemleri
+		AllowHeaders:     "Origin, Content-Type, Accept", // İzin verilen headerlar
+		AllowCredentials: false,                          // Credential paylaşımına izin
 	}))
 	// Screenshot endpoint
 	app.Post("/screenshot", handlers.TakeScreenshot)
