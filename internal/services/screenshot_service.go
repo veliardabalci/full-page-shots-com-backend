@@ -25,6 +25,7 @@ func CaptureScreenshot(url string) (string, error) {
 	// Chrome context oluştur
 	opts := chromedp.DefaultExecAllocatorOptions[:]
 	opts = append(opts,
+		chromedp.ExecPath("/usr/bin/google-chrome"),
 		chromedp.Headless,   // Başsız mod
 		chromedp.DisableGPU, // GPU'yu devre dışı bırak
 		chromedp.NoSandbox,  // Sanal alanı devre dışı bırak
