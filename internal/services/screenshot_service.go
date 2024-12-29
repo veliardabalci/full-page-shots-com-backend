@@ -24,8 +24,9 @@ func CaptureScreenshot(url string) (string, error) {
 
 	// Tarayıcı başlatma
 	launchURL := launcher.New().
-		Headless(true).  // Başsız mod
-		NoSandbox(true). // Sandbox'u devre dışı bırak
+		Headless(true).                           // Başsız mod
+		NoSandbox(true).                          // Sandbox'u devre dışı bırak
+		Set("path", "/usr/bin/chromium-browser"). // Chromium'un tam yolunu belirt
 		MustLaunch()
 
 	log.Printf("Tarayıcı başlatıldı: %s", launchURL)
@@ -34,12 +35,11 @@ func CaptureScreenshot(url string) (string, error) {
 	if err := browser.Connect(); err != nil {
 		return "", fmt.Errorf("Tarayıcıya bağlanılamadı: %w", err)
 	}
-	defer func(browser *rod.Browser) {
-		err := browser.Close()
-		if err != nil {
-
+	defer func() {
+		if err := browser.Close(); err != nil {
+			log.Printf("Tarayıcı kapatılırken hata oluştu: %v", err)
 		}
-	}(browser)
+	}()
 
 	// Sayfayı aç ve ekran görüntüsü al
 	page := browser.MustPage(url).MustWaitLoad()
