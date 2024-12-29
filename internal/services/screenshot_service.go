@@ -22,10 +22,11 @@ func CaptureScreenshot(url string) (string, error) {
 	}
 	filePath := filepath.Join(outputDir, fileName)
 
-	// Tarayıcı başlatma
+	// Tarayıcı başlatma (Chrome'un tam yolunu ayarla)
 	launchURL := launcher.New().
-		Headless(true).  // Başsız mod
-		NoSandbox(true). // Sandbox'u devre dışı bırak
+		Headless(true).                        // Başsız mod
+		NoSandbox(true).                       // Sandbox'u devre dışı bırak
+		Set("path", "/usr/bin/google-chrome"). // Chrome'un tam yolu
 		MustLaunch()
 
 	log.Printf("Tarayıcı başlatıldı: %s", launchURL)
