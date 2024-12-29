@@ -24,7 +24,7 @@ func CaptureScreenshot(url string) (string, error) {
 
 	// Chrome seçeneklerini belirle
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
-		chromedp.ExecPath("/usr/bin/chromium"),             // Chrome'un tam yolu
+		chromedp.ExecPath("/usr/bin/chromium"),             // Chromium veya Chrome'un tam yolu
 		chromedp.Headless,                                  // Başsız mod
 		chromedp.DisableGPU,                                // GPU'yu devre dışı bırak
 		chromedp.NoSandbox,                                 // Sandbox'u devre dışı bırak
@@ -52,15 +52,17 @@ func CaptureScreenshot(url string) (string, error) {
 		chromedp.FullScreenshot(&buf, 90), // Ekran görüntüsü al
 	})
 	if err != nil {
+		log.Printf("Hata: Ekran görüntüsü alınamadı: %v", err)
 		return "", fmt.Errorf("Ekran görüntüsü alınamadı: %w", err)
 	}
 
 	// Görüntüyü dosyaya kaydet
 	if err := os.WriteFile(filePath, buf, 0644); err != nil {
-		return "", fmt.Errorf("Ekran görüntüsü kaydedilemedi: %w", err)
+		log.Printf("Hata: Görüntü dosyası kaydedilemedi: %v", err)
+		return "", fmt.Errorf("Görüntü dosyası kaydedilemedi: %w", err)
 	}
 
-	fmt.Println("Ekran görüntüsü başarıyla alındı: ", filePath)
+	log.Printf("Ekran görüntüsü başarıyla alındı: %s", filePath)
 	return fileName, nil
 }
 
