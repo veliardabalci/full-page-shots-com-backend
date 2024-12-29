@@ -22,31 +22,34 @@ func CaptureScreenshot(url string) (string, error) {
 	}
 	filePath := filepath.Join(outputDir, fileName)
 
-	// Chrome context oluştur
-	opts := chromedp.DefaultExecAllocatorOptions[:]
-	opts = append(opts,
-		chromedp.ExecPath("/usr/bin/google-chrome"),
+	// Chrome seçeneklerini belirle
+	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.ExecPath("/usr/bin/google-chrome"), // Chrome'un tam yolu
 		chromedp.Headless,   // Başsız mod
 		chromedp.DisableGPU, // GPU'yu devre dışı bırak
-		chromedp.NoSandbox,  // Sanal alanı devre dışı bırak
-		chromedp.Flag("disable-software-rasterizer", true),
+		chromedp.NoSandbox,  // Sandbox'u devre dışı bırak
+		chromedp.Flag("disable-software-rasterizer", true), // Yazılım rasterizer'ı devre dışı bırak
 	)
+
 	// Chrome context oluştur
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()
 
-	ctx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+	ctx, cancel := chromedp.NewContext(
+		allocCtx,
+		chromedp.WithLogf(log.Printf), // Hata ayıklama için loglama
+	)
 	defer cancel()
 
 	// Timeout ekle
-	timeoutCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(ctx, 60*time.Second) // Timeout artırıldı
 	defer cancel()
 
 	// Ekran görüntüsü al
 	var buf []byte
 	err := chromedp.Run(timeoutCtx, chromedp.Tasks{
-		chromedp.Navigate(url),
-		chromedp.FullScreenshot(&buf, 90),
+		chromedp.Navigate(url),            // URL'ye git
+		chromedp.FullScreenshot(&buf, 90), // Ekran görüntüsü al
 	})
 	if err != nil {
 		return "", fmt.Errorf("Ekran görüntüsü alınamadı: %w", err)
