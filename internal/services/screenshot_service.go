@@ -1,14 +1,14 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/go-rod/rod"
-	"github.com/go-rod/rod/lib/launcher"
+	"github.com/chromedp/chromedp"
 )
 
 func CaptureScreenshot(url string) (string, error) {
@@ -22,29 +22,41 @@ func CaptureScreenshot(url string) (string, error) {
 	}
 	filePath := filepath.Join(outputDir, fileName)
 
-	// Tarayıcı başlatma
-	launchURL := launcher.New().
-		Headless(true).                           // Başsız mod
-		NoSandbox(true).                          // Sandbox'u devre dışı bırak
-		Set("path", "/usr/bin/chromium-browser"). // Chromium'un tam yolunu belirt
-		MustLaunch()
+	// Chrome seçeneklerini belirle
+	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.ExecPath("/usr/bin/chromium"),             // Chrome'un tam yolu
+		chromedp.Headless,                                  // Başsız mod
+		chromedp.DisableGPU,                                // GPU'yu devre dışı bırak
+		chromedp.NoSandbox,                                 // Sandbox'u devre dışı bırak
+		chromedp.Flag("disable-software-rasterizer", true), // Yazılım rasterizer'ı devre dışı bırak
+	)
 
-	log.Printf("Tarayıcı başlatıldı: %s", launchURL)
+	// Chrome context oluştur
+	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+	defer cancel()
 
-	browser := rod.New().ControlURL(launchURL)
-	if err := browser.Connect(); err != nil {
-		return "", fmt.Errorf("Tarayıcıya bağlanılamadı: %w", err)
+	ctx, cancel := chromedp.NewContext(
+		allocCtx,
+		chromedp.WithLogf(log.Printf), // Hata ayıklama için loglama
+	)
+	defer cancel()
+
+	// Timeout ekle
+	timeoutCtx, cancel := context.WithTimeout(ctx, 60*time.Second) // Timeout artırıldı
+	defer cancel()
+
+	// Ekran görüntüsü al
+	var buf []byte
+	err := chromedp.Run(timeoutCtx, chromedp.Tasks{
+		chromedp.Navigate(url),            // URL'ye git
+		chromedp.FullScreenshot(&buf, 90), // Ekran görüntüsü al
+	})
+	if err != nil {
+		return "", fmt.Errorf("Ekran görüntüsü alınamadı: %w", err)
 	}
-	defer func() {
-		if err := browser.Close(); err != nil {
-			log.Printf("Tarayıcı kapatılırken hata oluştu: %v", err)
-		}
-	}()
 
-	// Sayfayı aç ve ekran görüntüsü al
-	page := browser.MustPage(url).MustWaitLoad()
-	screenshot := page.MustScreenshot()
-	if err := os.WriteFile(filePath, screenshot, 0644); err != nil {
+	// Görüntüyü dosyaya kaydet
+	if err := os.WriteFile(filePath, buf, 0644); err != nil {
 		return "", fmt.Errorf("Ekran görüntüsü kaydedilemedi: %w", err)
 	}
 
