@@ -21,7 +21,6 @@ func SetupRouter() *fiber.App {
 	app.Post("/screenshot", handlers.TakeScreenshot)
 	app.Get("/download/:filename", handlers.Download)
 	app.Post("/contact", handlers.Contact)
-	app.Get("/ping", handlers.Ping)
 
 	return app
 }

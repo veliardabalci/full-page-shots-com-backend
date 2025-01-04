@@ -85,7 +85,3 @@ func Contact(c *fiber.Ctx) error {
 		"message": "Mesajınız iletildi",
 	})
 }
-
-func Ping(c *fiber.Ctx) error {
-	return c.Status(200).JSON(fiber.Map{"Pong": true})
-}
