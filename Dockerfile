@@ -1,9 +1,6 @@
 # Resmi Golang imajını kullan
 FROM golang:1.23.4
 
-# Çalışma dizinini ayarla
-WORKDIR /app
-
 # Gerekli bağımlılıkları yükle
 RUN apt-get update && apt-get install -y \
     chromium \
@@ -25,8 +22,9 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Uygulama dosyalarını konteynıra kopyala
-COPY . .
+# Uygulama dosyalarını konteynıra kopyalamıyoruz, host dizinini bağlayacağız
+# Çalışma dizinini ayarla (konteyner içinde /app olacak)
+WORKDIR /app
 
 # Go modüllerini indir
 RUN go mod download
