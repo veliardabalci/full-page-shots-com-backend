@@ -10,3 +10,17 @@ type ContactMe struct {
 	Message string `json:"message"`
 	Name    string `json:"name"`
 }
+
+type Request struct {
+	URL                 string `json:"url"`
+	Width               int64  `json:"width"`
+	Height              int64  `json:"height"`
+	DeviceType          string `json:"deviceType"`
+	Format              string `json:"format"`
+	FullPageScreenshots bool   `json:"fullPageScreenshots"`
+}
+
+type ErrorResponse struct {
+	Message string `json:"message"`
+	Details string `json:"details,omitempty"`
+}
