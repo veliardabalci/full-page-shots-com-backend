@@ -36,24 +36,24 @@ func init() {
 }
 
 func main() {
-	// Çalıştırma dizinini alın
-	workingDir, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("Failed to get working directory: %v", err)
-	}
+	//// Çalıştırma dizinini alın
+	//workingDir, err := os.Getwd()
+	//if err != nil {
+	//	log.Fatalf("Failed to get working directory: %v", err)
+	//}
+	//
+	//// Screenshots dizinini çalıştırma dizininde oluştur
+	//dir := filepath.Join(workingDir, "screenshots")
+	//if _, err := os.Stat(dir); os.IsNotExist(err) {
+	//	if err = os.MkdirAll(dir, os.ModePerm); err != nil {
+	//		log.Fatalf("Failed to create screenshots directory: %v", err)
+	//	}
+	//	log.Println("Screenshots directory created.")
+	//} else {
+	//	log.Println("Screenshots directory already exists.")
+	//}
 
-	// Screenshots dizinini çalıştırma dizininde oluştur
-	dir := filepath.Join(workingDir, "screenshots")
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err = os.MkdirAll(dir, os.ModePerm); err != nil {
-			log.Fatalf("Failed to create screenshots directory: %v", err)
-		}
-		log.Println("Screenshots directory created.")
-	} else {
-		log.Println("Screenshots directory already exists.")
-	}
-
-	go utils.CleanUpOldFiles(dir, 10*time.Minute)
+	go utils.CleanUpOldFiles("screenshots", 10*time.Minute)
 	app := infrastructure.SetupRouter()
 	log.Println("Server is running on :8000")
 	if err := app.Listen(":8000"); err != nil {
