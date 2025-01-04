@@ -37,9 +37,10 @@ func CaptureScreenshot(request models.Request, url string) (string, error) {
 	}
 
 	filePath := filepath.Join(outputDir, fileName)
-
+	chromePath := "/usr/bin/chromium" // Chromium binary path for Ubuntu
 	// Set ChromeDP options for a headless browser
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.ExecPath(chromePath),  // Use custom path for Chromium
 		chromedp.Headless,              // Run in headless mode
 		chromedp.DisableGPU,            // Disable GPU for more stability
 		chromedp.NoFirstRun,            // Skip the first run tasks
