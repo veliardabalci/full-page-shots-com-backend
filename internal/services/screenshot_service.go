@@ -37,10 +37,9 @@ func CaptureScreenshot(request models.Request, url string) (string, error) {
 	}
 
 	filePath := filepath.Join(outputDir, fileName)
-	chromePath := "/usr/bin/chromium" // Chromium binary path for Ubuntu
+
 	// Set ChromeDP options for a headless browser
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
-		chromedp.ExecPath(chromePath),  // Use custom path for Chromium
 		chromedp.Headless,              // Run in headless mode
 		chromedp.DisableGPU,            // Disable GPU for more stability
 		chromedp.NoFirstRun,            // Skip the first run tasks
@@ -93,25 +92,27 @@ func CaptureScreenshot(request models.Request, url string) (string, error) {
 	}
 
 	logrus.WithFields(logrus.Fields{
-		"file_name": fileName,
+		"file_path": filePath,
 		"url":       url,
 	}).Info("Screenshot successfully saved")
+
+	userFacingName := filepath.Base(fileName) // Get only the file name for user-facing purposes
 
 	if request.Format == "PDF" {
 		pdfFileName, err := convertPNGToPDF(filePath)
 		if err != nil {
-			return "", fmt.Errorf("failed to convert PNG to PDF: %w", err)
+			return userFacingName, fmt.Errorf("failed to convert PNG to PDF: %w", err)
 		}
 		return filepath.Base(pdfFileName), nil
 	} else if request.Format == "JPG" {
 		jpgFileName, err := convertPNGToJPG(filePath)
 		if err != nil {
-			return "", fmt.Errorf("failed to convert PNG to JPG: %w", err)
+			return userFacingName, fmt.Errorf("failed to convert PNG to JPG: %w", err)
 		}
 		return filepath.Base(jpgFileName), nil
 	}
 
-	return fileName, nil
+	return userFacingName, nil
 }
 
 // generateFileName creates a unique file name based on the URL and the current timestamp.
@@ -127,7 +128,12 @@ func convertPNGToPDF(pngPath string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to open PNG file: %w", err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	img, err := png.Decode(file)
 	if err != nil {
@@ -147,12 +153,14 @@ func convertPNGToPDF(pngPath string) (string, error) {
 		return "", fmt.Errorf("failed to register image")
 	}
 
+	pdf.ImageOptions(imgPath, 0, 0, imgWidth, imgHeight, false, gofpdf.ImageOptions{}, 0, "")
+
 	pdfFileName := pngPath[:len(pngPath)-4] + ".pdf"
 	if err := pdf.OutputFileAndClose(pdfFileName); err != nil {
 		return "", fmt.Errorf("failed to save PDF file: %w", err)
 	}
 
-	return filepath.Base(pdfFileName), nil
+	return pdfFileName, nil
 }
 
 // convertPNGToJPG converts a PNG image file to a JPG file.
@@ -181,5 +189,5 @@ func convertPNGToJPG(pngPath string) (string, error) {
 		return "", fmt.Errorf("failed to encode JPG file: %w", err)
 	}
 
-	return filepath.Base(jpgPath), nil
+	return jpgPath, nil
 }
