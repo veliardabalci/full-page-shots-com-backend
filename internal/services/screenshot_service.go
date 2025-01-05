@@ -24,7 +24,7 @@ func CaptureScreenshot(request models.Request, url string) (string, error) {
 		"device_type": request.DeviceType,
 		"width":       request.Width,
 		"height":      request.Height,
-		"format":      request.Format,
+		"format":      request.SaveAs,
 	}).Info("Received screenshot capture request")
 
 	// Generate a unique filename for the screenshot
@@ -98,13 +98,13 @@ func CaptureScreenshot(request models.Request, url string) (string, error) {
 
 	userFacingName := filepath.Base(fileName) // Get only the file name for user-facing purposes
 
-	if request.Format == "PDF" {
+	if request.SaveAs == "PDF" {
 		pdfFileName, err := convertPNGToPDF(filePath)
 		if err != nil {
 			return userFacingName, fmt.Errorf("failed to convert PNG to PDF: %w", err)
 		}
 		return filepath.Base(pdfFileName), nil
-	} else if request.Format == "JPG" {
+	} else if request.SaveAs == "JPG" {
 		jpgFileName, err := convertPNGToJPG(filePath)
 		if err != nil {
 			return userFacingName, fmt.Errorf("failed to convert PNG to JPG: %w", err)

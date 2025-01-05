@@ -16,7 +16,7 @@ type Request struct {
 	Width               int64  `json:"width"`
 	Height              int64  `json:"height"`
 	DeviceType          string `json:"deviceType"`
-	Format              string `json:"format"`
+	SaveAs              string `json:"saveAs"`
 	FullPageScreenshots bool   `json:"fullPageScreenshots"`
 }
 
